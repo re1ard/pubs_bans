@@ -91,11 +91,25 @@ def main(login,password):
 #######################################
 	response = api.method('groups.getById',{'group_ids':settings.good_group.split('/')[3]})
 	banan_allow = True
-	if response[0]['is_admin'] == 0:
-		print u'ты не владеешь привелегиями в своей группе'
+	if not 'is_admin' in response[0] or response[0]['is_admin'] == 0:
+		print u'ты не владеешь привелегиями в своей группе\nно можно сравнить контингент групп'
 		banan_allow = False
-		while raw_input('//exit?? (y/n) ').lower() == 'y':
-			return
+		compare_users = False
+		ask = True
+
+		while ask:
+			if raw_input(u'//compare? (y/n) ').lower() == 'y':
+				compare_users = True
+				banan_allow = True
+			ask = False
+			
+		if not compare_users:
+			while raw_input(u'//exit? (y/n) ').lower() == 'y':
+				return
+	
+	if not 'is_admin' in response[0]:
+		print u'использования метода execute невозможно т.к ты не авторизован'
+		settings.ggf = False
 		
 	settings.good_group = response[0]['id']
 	settings.bad_group = api.method('groups.getById',{'group_ids':settings.bad_group.split('/')[3]})[0]['id']
@@ -164,6 +178,8 @@ def main(login,password):
 	print u'все пользователи получены'
 	print str(len(bad_members))+'/'+str(len(members)) + '     Это ' + str(round(len(bad_members)*100/len(members))) + '% из общего числа'
 #######################################
+	if compare_users:
+		return 
 	print u'\n\nбан пользователей'
 	banned_users = []
 	if not settings.more_bans:
@@ -207,13 +223,30 @@ def main(login,password):
 						
 
 if __name__ == '__main__':
-	settings.good_group = sys.argv[3]
-	settings.bad_group = sys.argv[4]
-	settings.comment_visible = 1
-	timeparm = int(sys.argv[5])
+	login = ''
+	password = ''
+	timeparm = 0
+	if len(sys.argv) > 1:
+		if '://vk.com/' in sys.argv[1]:
+			settings.good_group = sys.argv[1]
+		else:
+			login = sys.argv[1]
+	if len(sys.argv) > 2:
+		if '://vk.com/' in sys.argv[2]:
+			settings.bad_group = sys.argv[2]
+		else:
+			password = sys.argv[2]
+	if len(sys.argv) > 3:
+		if '://vk.com/' in sys.argv[3]:
+                        settings.good_group = sys.argv[3]
+	if len(sys.argv) > 4:
+		if '://vk.com/' in sys.argv[2]:
+                        settings.bad_group = sys.argv[4]
+	if len(sys.argv) > 5:
+		timeparm = int(sys.argv[5])
 	if timeparm == 0:
 		settings.forever = True
 	else:
 		settings.forever = False
 		settings.mesyacev = timeparm
-	main(sys.argv[1],sys.argv[2])
+	main(login,password)

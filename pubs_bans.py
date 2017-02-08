@@ -91,6 +91,7 @@ def main(login,password):
 #######################################
 	response = api.method('groups.getById',{'group_ids':settings.good_group.split('/')[3]})
 	banan_allow = True
+	compare_users = False
 	if not 'is_admin' in response[0] or response[0]['is_admin'] == 0:
 		print u'ты не владеешь привелегиями в своей группе\nно можно сравнить контингент групп'
 		banan_allow = False
